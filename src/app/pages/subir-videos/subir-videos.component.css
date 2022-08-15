@@ -1,0 +1,19 @@
+/* Structure */
+table {
+	width: 100%;
+  }
+
+  .mat-form-field {
+	font-size: 14px;
+	width: 100%;
+  }
+
+  .zoom{
+
+    transition: transform .2s;
+
+}
+
+.zoom:hover{
+    transform:scale(3.0);
+}

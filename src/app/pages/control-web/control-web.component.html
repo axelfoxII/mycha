@@ -1,0 +1,59 @@
+<app-navbar></app-navbar>
+<div class="container mt-3">
+
+  <h1 class="text-center">Control Portada</h1>
+
+  <div class="row">
+
+
+    <div class="col-sm-7">
+
+      <div class="card bg-dark" style="color: white">
+        <div class="card-body">
+          <form (ngSubmit)="portada()" [formGroup]="portadaForm">
+
+            <div class="mb-3">
+              <label for="validationTextarea">Descripcion</label>
+              <textarea
+                class="form-control"
+                formControlName="descripcion"
+                required
+              ></textarea>
+              <div class="invalid-feedback">
+                Please enter a message in the textarea.
+              </div>
+            </div>
+            <div class="form-group">
+              <input
+                type="file"
+                class="form-control-file"
+                accept="image/*"
+                formControlName="imagen"
+                required
+                (change)="selectChange($event)"
+              /><br />
+
+                <img  [src]="imgURL" with="100" height="100" />
+            </div>
+
+            <div class="modal-footer">
+               <button type="submit" class="btn btn-primary">Guardar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+    <div class="col-sm-5" style="margin: auto;">
+      <div class="card bg-dark mt-2" style="color: white;">
+        <img src="{{datosPortada.imagen}}" class="card-img-top" alt="...">
+        <div class="card-body">
+          <h5 class="card-title">Descripcion</h5>
+          <p class="card-text">{{datosPortada.descripcion}}</p>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>

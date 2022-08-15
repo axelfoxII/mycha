@@ -1,0 +1,399 @@
+<app-navbar></app-navbar>
+<div class="container mt-3">
+  <h1
+    class="header mt-3 mb-3 text-center"
+    style="color: rgba(250, 14, 14, 0.8)"
+  >
+    <i class="fa fa-youtube" aria-hidden="true"></i>
+    <strong> LISTA DE VIDEOS DEL CANAL </strong>
+  </h1>
+
+  <mat-form-field>
+    <input
+      matInput
+      (keyup)="applyFilter($any($event.target).value)"
+      placeholder="Filtrar Datos"
+    />
+  </mat-form-field>
+
+  <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" matSort>
+
+    <!-- Position Column -->
+    <ng-container matColumnDef="imagen">
+      <th mat-header-cell *matHeaderCellDef>Imagen</th>
+      <td mat-cell *matCellDef="let element">
+        <img [src]="element.url_miniatura" with="90" height="90"/>
+      </td>
+    </ng-container>
+
+    <!-- Name Column -->
+    <ng-container matColumnDef="nombre">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
+      <td mat-cell *matCellDef="let element">{{ element.nombre }}</td>
+    </ng-container>
+    <!-- Name Column -->
+    <ng-container matColumnDef="videos">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Videos</th>
+      <td mat-cell *matCellDef="let element">
+        <button
+          class="btn btn-outline-danger btn-sm mr-2"
+          (click)="obtenerVideos(element.id)"
+          data-toggle="modal"
+          data-target="#obVideos"
+        >
+          <i class="fa fa-youtube-play" aria-hidden="true"></i> Videos
+        </button>
+
+        <button
+          class="btn btn-outline-success btn-sm"
+          (click)="listaId(element.id)"
+          data-toggle="modal"
+          data-target="#agregarVideos"
+        >
+          <i class="fa fa-plus" aria-hidden="true"></i> Agregar Videos
+        </button>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="vistas">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Vistas</th>
+      <td mat-cell *matCellDef="let element"><button  (click)="cantidadVistas(element.nombre)" class="btn btn-secondary btn-sm"><i class="fa fa-eye" aria-hidden="true"></i></button></td>
+    </ng-container>
+
+    <!-- Name Column -->
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Acciones</th>
+      <td mat-cell *matCellDef="let element">
+        <button
+          mat-stroked-button
+          color="accent"
+          data-toggle="modal"
+          data-target="#editarLista"
+          (click)="obtenerListaId(element.id)"
+        >
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button
+          mat-stroked-button
+          color="warn"
+          (click)="eliminaLista(element.id)"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+  <mat-paginator
+    [length]="100"
+    [pageSize]="10"
+    [pageSizeOptions]="[5, 10, 20]"
+    #pagination
+  >
+  </mat-paginator>
+</div>
+
+<div class="container mt-3 text-center">
+  <button
+    class="btn btn-secondary"
+    data-toggle="modal"
+    data-target="#agregarLista"
+  >
+    <i class="fa fa-plus" aria-hidden="true"></i> Agregar Lista de Video
+  </button>
+</div>
+
+<!-- MODAL AGREGAR LISTA -->
+<div
+  class="modal fade"
+  id="agregarLista"
+  tabindex="-1"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-dark" style="color: white">
+        <h5 class="modal-title" id="exampleModalLabel">
+          <i class="fa fa-plus" aria-hidden="true"></i> Agregar Lista
+        </h5>
+        <button
+          type="button"
+          class="close"
+          (click)="close()"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="registrarLista()" [formGroup]="listaForm">
+          <div class="form-group">
+            <label for="formGroupExampleInput">Nombre de la lista</label>
+            <input type="text" class="form-control" formControlName="nombre" />
+          </div>
+          <div class="mb-3">
+            <label for="validationTextarea">Descripcion</label>
+            <textarea
+              class="form-control"
+              formControlName="descripcion"
+              required
+            ></textarea>
+            <div class="invalid-feedback">
+              Please enter a message in the textarea.
+            </div>
+
+            <div class="form-group mt-3">
+              <label for="formGroupExampleInput">Link de recursos</label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="recursos"
+                placeholder="https://"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <input
+              type="file"
+              class="form-control-file"
+              accept="image/*"
+              (change)="selectChange($event)"
+            /><br />
+
+            <img [src]="imgURL" with="100" height="100" />
+          </div>
+
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              (click)="close()"
+              data-dismiss="modal"
+            >
+              Close
+            </button>
+            <button type="submit" class="btn btn-success">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR LISTA -->
+<div
+  class="modal fade"
+  id="editarLista"
+  tabindex="-1"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-dark" style="color: white">
+        <h5 class="modal-title" id="exampleModalLabel">
+          <i class="fa fa-pencil" aria-hidden="true"></i> Editar Lista
+        </h5>
+        <button
+          type="button"
+          class="close"
+          (click)="close()"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="editarLista()" [formGroup]="listaForm">
+          <div class="form-group">
+            <label for="formGroupExampleInput">Nombre de la lista</label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="nombre"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="validationTextarea">Descripcion</label>
+            <textarea
+              class="form-control"
+              formControlName="descripcion"
+              required
+            ></textarea>
+            <div class="invalid-feedback">
+              Please enter a message in the textarea.
+            </div>
+
+            <div class="form-group mt-3">
+              <label for="formGroupExampleInput">Link de recursos</label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="recursos"
+                placeholder="https://"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <input
+              type="file"
+              class="form-control-file"
+              accept="image/*"
+              (change)="selectChange($event)"
+            /><br />
+
+            <img *ngIf="!cambioImg" [src]="imgenUrl" with="100" height="100" />
+            <img *ngIf="cambioImg" [src]="imgURL" with="100" height="100" />
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="close()">
+              Close
+            </button>
+            <button type="submit" class="btn btn-success">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AGREHAR VIDEOS LISTA -->
+<div
+  class="modal fade"
+  id="agregarVideos"
+  tabindex="-1"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-dark" style="color: white">
+        <h5 class="modal-title" id="exampleModalLabel">
+          <i class="fa fa-plus" aria-hidden="true"></i> Agregar Videos
+        </h5>
+        <button
+          type="button"
+          class="close"
+          (click)="close()"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="registrarVideo()" [formGroup]="videosForm">
+          <div class="form-group">
+            <label for="formGroupExampleInput">Id del video</label>
+            <input type="text" class="form-control" formControlName="idVideo" />
+          </div>
+
+          <div class="form-group mt-3">
+            <label for="formGroupExampleInput">Titulo del video</label>
+            <input type="text" class="form-control" formControlName="titulo" />
+          </div>
+
+          <div class="form-group">
+            <label for="formGroupExampleInput">Orden del video</label>
+            <select class="form-control" formControlName="orden">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10">10</option>
+              <option value="11">11</option>
+              <option value="12">12</option>
+              <option value="13">13</option>
+              <option value="14">14</option>
+              <option value="15">15</option>
+            </select>
+          </div>
+
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              (click)="close()"
+              data-dismiss="modal"
+            >
+              Close
+            </button>
+            <button type="submit" class="btn btn-success">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VIDEOS LISTA -->
+<div
+  class="modal fade"
+  id="obVideos"
+  tabindex="-1"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-dark" style="color: white">
+        <h5 class="modal-title" id="exampleModalLabel">
+          <i class="fa fa-youtube-play" aria-hidden="true"></i> Lista de Videos
+        </h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <table class="table table-dark">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Titulo</th>
+              <th scope="col">Id-Video</th>
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let video of titulos; let i = index">
+              <th scope="row">{{ i + 1 }}</th>
+              <td>{{ video.titulo }}</td>
+              <td>{{ video.id_video }}</td>
+              <td>
+                <button
+                  class="btn btn-danger"
+                  (click)="eliminarVideo(video.id)"
+                >
+                  <i class="fa fa-trash" aria-hidden="true"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
